@@ -62,9 +62,24 @@ GroupManager::getGroupKey(const TimeStamp& timeslot, bool needRegenerate)
   }
   else {
     generateKeyPairs(priKeyBuf, pubKeyBuf);
-    // if (m_db.hasEKey(eKeyName)) {
-    //   deleteEKey(eKeyName);
-    // }
+    if (m_db.hasEKey(eKeyName)) {
+      try{
+        deleteEKey(eKeyName);
+      } 
+      catch(std::exception &e)
+      {
+        std::cerr << "cannot delete ekey [" 
+                  << eKeyName.toUri() << "] " 
+                  << e.what() << std::endl;
+      }
+      catch(...)
+      {
+        std::cerr << "cannot delete ekey [" 
+                  << eKeyName.toUri() 
+                  << "] " 
+                  << "unknown error" << std::endl;
+      }
+    }
     addEKey(eKeyName, pubKeyBuf, priKeyBuf);
   }
 
