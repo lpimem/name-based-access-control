@@ -385,7 +385,9 @@ GroupManagerDB::deleteEKey(const Name& eKeyName)
   statement.step();
 
   auto search = m_impl->m_priKeyBase.find(eKeyName);
-  m_impl->m_priKeyBase.erase(search);
+  if (search != m_impl->m_priKeyBase.end()){
+    m_impl->m_priKeyBase.erase(search);
+  }
 }
 
 } // namespace gep
