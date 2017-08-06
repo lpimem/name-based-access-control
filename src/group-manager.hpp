@@ -90,6 +90,9 @@ public:
   void
   addMember(const std::string& scheduleName, const Data& memCert);
 
+  void
+  addMember(const std::string& scheduleName, const Name& keyName, const Buffer& key);
+
   /// @brief Remove member with name @p identity from the group.
   void
   removeMember(const Name& identity);

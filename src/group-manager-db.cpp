@@ -27,6 +27,8 @@
 #include <ndn-cxx/util/sqlite3-statement.hpp>
 #include <ndn-cxx/security/identity-certificate.hpp>
 
+#include <ndn-cxx/util/string-helper.hpp>
+
 namespace ndn {
 namespace gep {
 
@@ -304,6 +306,9 @@ GroupManagerDB::addMember(const std::string& scheduleName, const Name& keyName,
 
   if (statement.step() != SQLITE_DONE)
     BOOST_THROW_EXCEPTION(Error("Cannot add the member to database"));
+  
+  std::cout << "Added member [" << keyName.toUri() << "] to group <" << scheduleName << ">" << std::endl
+            << "\tKEY: "<< toHex(key, true) <<std::endl;
 }
 
 void
