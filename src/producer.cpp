@@ -24,8 +24,8 @@
 
 #include "producer.hpp"
 #include "random-number-generator.hpp"
-#include "algo/encryptor.hpp"
 #include "algo/aes.hpp"
+#include "algo/encryptor.hpp"
 #include "algo/error.hpp"
 
 namespace ndn {
@@ -43,13 +43,15 @@ const Link Producer::NO_LINK = Link();
   hour, so that we can store content keys uniformly (by start of the hour).
 */
 static const system_clock::TimePoint
-getRoundedTimeslot(const system_clock::TimePoint& timeslot) {
-  return time::fromUnixTimestamp(
-    (time::toUnixTimestamp(timeslot) / 3600000) * 3600000);
+getRoundedTimeslot(const system_clock::TimePoint& timeslot)
+{
+  return time::fromUnixTimestamp((time::toUnixTimestamp(timeslot) / 3600000) * 3600000);
 }
 
-Producer::Producer(const Name& prefix, const Name& dataType,
-                   Face& face, const std::string& dbPath,
+Producer::Producer(const Name& prefix,
+                   const Name& dataType,
+                   Face& face,
+                   const std::string& dbPath,
                    uint8_t repeatAttempts,
                    const Link& keyRetrievalLink)
   : m_face(face)
@@ -121,7 +123,9 @@ Producer::createContentKey(const system_clock::TimePoint& timeslot,
       // current E-KEY cannot cover the content key, retrieve one.
       keyRequest.repeatAttempts[it->first] = 0;
       sendKeyInterest(Interest(it->first).setExclude(timeRange).setChildSelector(1),
-                      timeslot, callback, errorCallback);
+                      timeslot,
+                      callback,
+                      errorCallback);
     }
     else {
       // current E-KEY can cover the content key, encrypt the content key directly.
@@ -136,18 +140,17 @@ Producer::createContentKey(const system_clock::TimePoint& timeslot,
 }
 
 
-void Producer::encryptContentKey(const time::system_clock::TimePoint& timeslot,
-                                 const ProducerEKeyCallback& callback,
-                                 const ErrorCallBack& errorCallback)
+void
+Producer::encryptContentKey(const time::system_clock::TimePoint& timeslot,
+                            const ProducerEKeyCallback& callback,
+                            const ErrorCallBack& errorCallback)
 {
   // Check if we have created the content key before.
-  if (!m_db.hasContentKey(timeslot)) 
-  {
+  if (!m_db.hasContentKey(timeslot)) {
     std::cout << "[NAC] Creating new CKey" << std::endl;
     createContentKey(timeslot, callback, errorCallback);
   }
-  else 
-  {
+  else {
     // std::cout << "[NAC] Encrypting existing c-key" << std::endl;
 
     // Now we need to retrieve the E-KEYs for content key encryption.
@@ -165,14 +168,17 @@ void Producer::encryptContentKey(const time::system_clock::TimePoint& timeslot,
         // current E-KEY cannot cover the content key, retrieve one.
         keyRequest.repeatAttempts[it->first] = 0;
         sendKeyInterest(Interest(it->first).setExclude(timeRange).setChildSelector(1),
-                        timeslot, callback, errorCallback);
+                        timeslot,
+                        callback,
+                        errorCallback);
       }
       else {
         // current E-KEY can cover the content key, encrypt the content key directly.
         Name eKeyName(it->first);
         eKeyName.append(time::toIsoString(it->second.beginTimeslot));
         eKeyName.append(time::toIsoString(it->second.endTimeslot));
-        std::cout<< "[NAC] DEBUG: Encrypt C-Key using existing E-Key: " << eKeyName.toUri() << std::endl;
+        std::cout << "[NAC] DEBUG: Encrypt C-Key using existing E-Key: " << eKeyName.toUri()
+                  << std::endl;
         encryptContentKey(it->second.keyBits, eKeyName, timeslot, callback, errorCallback);
       }
     }
@@ -186,8 +192,10 @@ Producer::defaultErrorCallBack(const ErrorCode& code, const std::string& msg)
 }
 
 void
-Producer::produce(Data& data, const system_clock::TimePoint& timeslot,
-                  const uint8_t* content, size_t contentLen,
+Producer::produce(Data& data,
+                  const system_clock::TimePoint& timeslot,
+                  const uint8_t* content,
+                  size_t contentLen,
                   const ErrorCallBack& errorCallBack)
 {
   // Get a content key
@@ -199,8 +207,7 @@ Producer::produce(Data& data, const system_clock::TimePoint& timeslot,
   dataName.append(time::toIsoString(timeslot));
   data.setName(dataName);
   algo::EncryptParams params(tlv::AlgorithmAesCbc, 16);
-  algo::encryptData(data, content, contentLen, contentKeyName,
-                    contentKey.buf(), contentKey.size(), params);
+  algo::encryptData(data, content, contentLen, contentKeyName, contentKey.buf(), contentKey.size(), params);
   m_keychain.sign(data);
 }
 
@@ -215,28 +222,27 @@ Producer::sendKeyInterest(const Interest& interest,
     request.setLink(m_keyRetrievalLink.wireEncode());
   }
   std::cout << "[NAC] sending: " << request.toUri() << std::endl;
-  m_face.expressInterest(request,
-                         std::bind(&Producer::handleCoveringKey, this, _1, _2,
-                                   timeslot, callback, errorCallback),
-                         std::bind(&Producer::handleNack, this, _1, _2,
-                                   timeslot, callback, errorCallback),
-                         std::bind(&Producer::handleTimeout, this, _1,
-                                   timeslot, callback, errorCallback));
+  m_face
+    .expressInterest(request,
+                     std::bind(&Producer::handleCoveringKey, this, _1, _2, timeslot, callback, errorCallback),
+                     std::bind(&Producer::handleNack, this, _1, _2, timeslot, callback, errorCallback),
+                     std::bind(&Producer::handleTimeout, this, _1, timeslot, callback, errorCallback));
   // std::cout << "[NAC] DEBUG sent: " << request.toUri() << std::endl;
 }
 
 void
-Producer::handleCoveringKey(const Interest& interest, const Data& data,
+Producer::handleCoveringKey(const Interest& interest,
+                            const Data& data,
                             const system_clock::TimePoint& timeslot,
                             const ProducerEKeyCallback& callback,
                             const ErrorCallBack& errorCallback)
 {
-  try{
+  try {
     // std::cout << "[NAC] DEBUG handleCoveringKey: " << interest.toUri() << std::endl;
     uint64_t timeCount = toUnixTimestamp(timeslot).count();
-    if(m_keyRequests.find(timeCount) == m_keyRequests.end()){
+    if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
       // std::cout << "[NAC] ERROR handleCoveringKey key request not found for " << interest.toUri() << std::endl;
-      return ;
+      return;
     }
     KeyRequest& keyRequest = m_keyRequests.at(timeCount);
 
@@ -256,7 +262,9 @@ Producer::handleCoveringKey(const Interest& interest, const Data& data,
       timeRange.excludeBefore(keyName.get(START_TS_INDEX));
 
       sendKeyInterest(Interest(interestName).setExclude(timeRange).setChildSelector(1),
-                      timeslot, callback, errorCallback);
+                      timeslot,
+                      callback,
+                      errorCallback);
     }
     else {
       // if received E-KEY covers the content key, encrypt the content
@@ -268,7 +276,8 @@ Producer::handleCoveringKey(const Interest& interest, const Data& data,
         m_ekeyInfo[interestName].keyBits = encryptionKey;
       }
     }
-  }catch(...){
+  }
+  catch (...) {
     std::cout << "[NAC] DEBUG handleCoveringKey: something wrong happened here" << std::endl;
   }
 }
@@ -281,9 +290,9 @@ Producer::handleTimeout(const Interest& interest,
 {
   // std::cout << "[NAC] DEBUG handleTimeout: " << interest.toUri() << std::endl;
   uint64_t timeCount = toUnixTimestamp(timeslot).count();
-  if(m_keyRequests.find(timeCount) == m_keyRequests.end()){
+  if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
     // std::cout << "[NAC] ERROR handleTimeout key request not found for " << interest.toUri() << std::endl;
-    return ;
+    return;
   }
   KeyRequest& keyRequest = m_keyRequests.at(timeCount);
 
@@ -311,37 +320,40 @@ Producer::handleNack(const Interest& interest,
   // we run out of options...
   uint64_t timeCount = toUnixTimestamp(timeslot).count();
 
-  if (m_keyRequests.find(timeCount) != m_keyRequests.end()){
+  if (m_keyRequests.find(timeCount) != m_keyRequests.end()) {
     updateKeyRequest(m_keyRequests.at(timeCount), timeCount, callback);
   }
-  
 }
 
 void
-Producer::updateKeyRequest(KeyRequest& keyRequest, uint64_t timeCount,
+Producer::updateKeyRequest(KeyRequest& keyRequest,
+                           uint64_t timeCount,
                            const ProducerEKeyCallback& callback)
 {
   keyRequest.interestCount--;
   if (keyRequest.interestCount == 0 && callback) {
-    try{
+    try {
       callback(keyRequest.encryptedKeys);
-    } catch (const std::exception& ex){
-      std::cout<<"[NAC] ERROR: " << ex.what() <<std::endl;
-    } catch(...){
-      std::cout<<"[NAC] ERROR: something wrong happened in updateKeyRequest->callback()";
+    }
+    catch (const std::exception& ex) {
+      std::cout << "[NAC] ERROR: " << ex.what() << std::endl;
+    }
+    catch (...) {
+      std::cout << "[NAC] ERROR: something wrong happened in updateKeyRequest->callback()";
     }
     m_keyRequests.erase(timeCount);
   }
 }
 
 bool
-Producer::encryptContentKey(const Buffer& encryptionKey, const Name& eKeyName,
+Producer::encryptContentKey(const Buffer& encryptionKey,
+                            const Name& eKeyName,
                             const system_clock::TimePoint& timeslot,
                             const ProducerEKeyCallback& callback,
                             const ErrorCallBack& errorCallBack)
 {
   uint64_t timeCount = toUnixTimestamp(timeslot).count();
-  if (m_keyRequests.find(timeCount) == m_keyRequests.end()){
+  if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
     return false;
   }
   KeyRequest& keyRequest = m_keyRequests.at(timeCount);
@@ -355,8 +367,13 @@ Producer::encryptContentKey(const Buffer& encryptionKey, const Name& eKeyName,
   cKeyData.setName(keyName);
   algo::EncryptParams params(tlv::AlgorithmRsaOaep);
   try {
-    algo::encryptData(cKeyData, contentKey.buf(), contentKey.size(), eKeyName,
-                      encryptionKey.buf(), encryptionKey.size(), params);
+    algo::encryptData(cKeyData,
+                      contentKey.buf(),
+                      contentKey.size(),
+                      eKeyName,
+                      encryptionKey.buf(),
+                      encryptionKey.size(),
+                      params);
   }
   catch (algo::Error& e) {
     errorCallBack(ErrorCode::EncryptionFailure, e.what());

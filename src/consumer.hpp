@@ -23,18 +23,18 @@
 #ifndef NDN_GEP_CONSUMER_HPP
 #define NDN_GEP_CONSUMER_HPP
 
-#include "algo/rsa.hpp"
-#include "algo/aes.hpp"
 #include "consumer-db.hpp"
 #include "error-code.hpp"
+#include "algo/aes.hpp"
+#include "algo/rsa.hpp"
 
-#include <ndn-cxx/security/validator-null.hpp>
 #include <ndn-cxx/face.hpp>
+#include <ndn-cxx/security/validator-null.hpp>
 
 namespace ndn {
 namespace gep {
 
-typedef function<void (const Data&, const Buffer&)> ConsumptionCallBack;
+typedef function<void(const Data&, const Buffer&)> ConsumptionCallBack;
 
 /**
  * @brief Consumer in group-based encryption protocol
@@ -42,7 +42,7 @@ typedef function<void (const Data&, const Buffer&)> ConsumptionCallBack;
 class Consumer
 {
 private:
-  typedef function<void (const Buffer&)> PlainTextCallBack;
+  typedef function<void(const Buffer&)> PlainTextCallBack;
 
 public:
   /**
@@ -55,8 +55,12 @@ public:
    * @param cKeyLink The link object for C-KEY retrieval
    * @param dKeyLink The link object for D-KEY retrieval
    */
-  Consumer(Face& face, const Name& groupName, const Name& consumerName, const std::string& dbPath,
-           const Link& cKeyLink = NO_LINK, const Link& dKeyLink = NO_LINK);
+  Consumer(Face& face,
+           const Name& groupName,
+           const Name& consumerName,
+           const std::string& dbPath,
+           const Link& cKeyLink = NO_LINK,
+           const Link& dKeyLink = NO_LINK);
 
   /**
    * @brief Send out the Interest packet to fetch content packet with @p dataName.
@@ -84,18 +88,18 @@ public:
   void
   addDecryptionKey(const Name& keyName, const Buffer& keyBuf);
 
-PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  PUBLIC_WITH_TESTS_ELSE_PRIVATE :
 
-  /**
+    /**
    * @brief Decrypt @p encryptedBlock using @p keyBits
    *
    * Invoke @p plainTextCallBack when block is decrypted, otherwise @p errorCallback.
    */
-  void
-  decrypt(const Block& encryptedBlock,
-          const Buffer& keyBits,
-          const PlainTextCallBack& plainTextCallBack,
-          const ErrorCallBack& errorCallback);
+    void
+    decrypt(const Block& encryptedBlock,
+            const Buffer& keyBits,
+            const PlainTextCallBack& plainTextCallBack,
+            const ErrorCallBack& errorCallback);
 
   /**
    * @brief Decrypt @p data.
@@ -149,7 +153,8 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param errorCallback The callback when error happens
    */
   void
-  sendInterest(const Interest& interest, int nRetrials,
+  sendInterest(const Interest& interest,
+               int nRetrials,
                const Link& link,
                const OnDataValidated& validationCallback,
                const ErrorCallBack& errorCallback);
@@ -167,7 +172,8 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param errorCallback The callback when error happens
    */
   void
-  handleNack(const Interest& interest, const lp::Nack& nack,
+  handleNack(const Interest& interest,
+             const lp::Nack& nack,
              const Link& link,
              const OnDataValidated& validationCallback,
              const ErrorCallBack& errorCallback);
@@ -185,7 +191,8 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param errorCallback The callback when error happens
    */
   void
-  handleTimeout(const Interest& interest, int nRetrials,
+  handleTimeout(const Interest& interest,
+                int nRetrials,
                 const Link& link,
                 const OnDataValidated& validationCallback,
                 const ErrorCallBack& errorCallback);

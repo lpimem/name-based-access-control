@@ -29,8 +29,7 @@ namespace algo {
 class Error : public std::runtime_error
 {
 public:
-  explicit
-  Error(const std::string& what)
+  explicit Error(const std::string& what)
     : std::runtime_error(what)
   {
   }

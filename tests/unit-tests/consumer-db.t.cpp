@@ -20,9 +20,9 @@
  */
 
 #include "consumer-db.hpp"
-#include "algo/rsa.hpp"
-#include "algo/aes.hpp"
 #include "boost-test.hpp"
+#include "algo/aes.hpp"
+#include "algo/rsa.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -89,8 +89,7 @@ BOOST_AUTO_TEST_CASE(OperateAesDecryptionKey)
   db.addKey(keyName, dKeyBuf);
   Buffer resultBuf = db.getKey(keyName);
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(dKeyBuf.begin(), dKeyBuf.end(),
-                                resultBuf.begin(), resultBuf.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(dKeyBuf.begin(), dKeyBuf.end(), resultBuf.begin(), resultBuf.end());
 
   db.deleteKey(keyName);
   resultBuf = db.getKey(keyName);
@@ -115,8 +114,7 @@ BOOST_AUTO_TEST_CASE(OperateRsaDecryptionKey)
   db.addKey(keyName, dKeyBuf);
   Buffer resultBuf = db.getKey(keyName);
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(dKeyBuf.begin(), dKeyBuf.end(),
-                                resultBuf.begin(), resultBuf.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(dKeyBuf.begin(), dKeyBuf.end(), resultBuf.begin(), resultBuf.end());
 
   db.deleteKey(keyName);
   resultBuf = db.getKey(keyName);

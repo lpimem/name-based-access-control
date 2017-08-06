@@ -37,7 +37,7 @@ enum class ErrorCode {
   DataRetrievalFailure = 36
 };
 
-typedef function<void (const ErrorCode&, const std::string&)> ErrorCallBack;
+typedef function<void(const ErrorCode&, const std::string&)> ErrorCallBack;
 
 } // namespace gep
 } // namespace ndn

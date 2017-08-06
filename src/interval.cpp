@@ -33,8 +33,7 @@ Interval::Interval(bool isValid)
 {
 }
 
-Interval::Interval(const TimeStamp& startTime,
-                   const TimeStamp& endTime)
+Interval::Interval(const TimeStamp& startTime, const TimeStamp& endTime)
   : m_startTime(startTime)
   , m_endTime(endTime)
   , m_isValid(true)
@@ -53,7 +52,7 @@ Interval::covers(const TimeStamp& tp) const
 }
 
 Interval&
-Interval::operator &&(const Interval& interval)
+Interval::operator&&(const Interval& interval)
 {
   BOOST_ASSERT(isValid() && interval.isValid());
 
@@ -80,7 +79,7 @@ Interval::operator &&(const Interval& interval)
 }
 
 Interval&
-Interval::operator ||(const Interval& interval)
+Interval::operator||(const Interval& interval)
 {
   BOOST_ASSERT(this->isValid() && interval.isValid());
 

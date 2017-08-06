@@ -24,8 +24,8 @@
  */
 
 #include "group-manager.hpp"
-#include "algo/encryptor.hpp"
 #include "encrypted-content.hpp"
+#include "algo/encryptor.hpp"
 
 #include <iostream>
 #include <map>
@@ -35,16 +35,22 @@
 namespace ndn {
 namespace gep {
 
-GroupManager::GroupManager(const Name &prefix, const Name &dataType,
-                           const std::string &dbPath, const int paramLength,
+GroupManager::GroupManager(const Name& prefix,
+                           const Name& dataType,
+                           const std::string& dbPath,
+                           const int paramLength,
                            const int freshPeriod)
-    : m_namespace(prefix), m_db(dbPath), m_paramLength(paramLength),
-      m_freshPeriod(freshPeriod) {
+  : m_namespace(prefix)
+  , m_db(dbPath)
+  , m_paramLength(paramLength)
+  , m_freshPeriod(freshPeriod)
+{
   m_namespace.append(NAME_COMPONENT_READ).append(dataType);
 }
 
-std::list<Data> GroupManager::getGroupKey(const TimeStamp &timeslot,
-                                          bool needRegenerate) {
+std::list<Data>
+GroupManager::getGroupKey(const TimeStamp& timeslot, bool needRegenerate)
+{
   std::map<Name, Buffer> memberKeys;
   std::list<Data> result;
 
@@ -55,10 +61,8 @@ std::list<Data> GroupManager::getGroupKey(const TimeStamp &timeslot,
     return result;
   }
 
-  std::string startTs =
-      boost::posix_time::to_iso_string(finalInterval.getStartTime());
-  std::string endTs =
-      boost::posix_time::to_iso_string(finalInterval.getEndTime());
+  std::string startTs = boost::posix_time::to_iso_string(finalInterval.getStartTime());
+  std::string endTs = boost::posix_time::to_iso_string(finalInterval.getEndTime());
 
   // generate the pri key and pub key
   Buffer priKeyBuf, pubKeyBuf;
@@ -68,16 +72,18 @@ std::list<Data> GroupManager::getGroupKey(const TimeStamp &timeslot,
   if (!needRegenerate && m_db.hasEKey(eKeyName)) {
     std::cout << "[NAC] using existing e-key" << std::endl;
     std::tie(pubKeyBuf, priKeyBuf) = getEKey(eKeyName);
-  } else {
+  }
+  else {
     std::cout << "[NAC] generating new e-key/d-key pair" << std::endl;
     generateKeyPairs(priKeyBuf, pubKeyBuf);
     if (m_db.hasEKey(eKeyName)) {
       try {
         deleteEKey(eKeyName);
-      } catch (std::exception &e) {
-        std::cerr << "cannot delete ekey [" << eKeyName.toUri() << "] "
-                  << e.what() << std::endl;
-      } catch (...) {
+      }
+      catch (std::exception& e) {
+        std::cerr << "cannot delete ekey [" << eKeyName.toUri() << "] " << e.what() << std::endl;
+      }
+      catch (...) {
         std::cerr << "cannot delete ekey [" << eKeyName.toUri() << "] "
                   << "unknown error" << std::endl;
       }
@@ -92,9 +98,9 @@ std::list<Data> GroupManager::getGroupKey(const TimeStamp &timeslot,
   result.push_back(data);
 
   // encrypt pri key with pub key from certificate
-  for (const auto &entry : memberKeys) {
-    const Name &keyName = entry.first;
-    const Buffer &certKey = entry.second;
+  for (const auto& entry : memberKeys) {
+    const Name& keyName = entry.first;
+    const Buffer& certKey = entry.second;
 
     // generate the name of the packet
     // D-KEY (private key) data packet name convention:
@@ -105,42 +111,52 @@ std::list<Data> GroupManager::getGroupKey(const TimeStamp &timeslot,
   return result;
 }
 
-void GroupManager::addSchedule(const std::string &scheduleName,
-                               const Schedule &schedule) {
+void
+GroupManager::addSchedule(const std::string& scheduleName, const Schedule& schedule)
+{
   m_db.addSchedule(scheduleName, schedule);
 }
 
-void GroupManager::deleteSchedule(const std::string &scheduleName) {
+void
+GroupManager::deleteSchedule(const std::string& scheduleName)
+{
   m_db.deleteSchedule(scheduleName);
 }
 
-void GroupManager::updateSchedule(const std::string &scheduleName,
-                                  const Schedule &schedule) {
+void
+GroupManager::updateSchedule(const std::string& scheduleName, const Schedule& schedule)
+{
   m_db.updateSchedule(scheduleName, schedule);
 }
 
-void GroupManager::addMember(const std::string &scheduleName,
-                             const Data &memCert) {
+void
+GroupManager::addMember(const std::string& scheduleName, const Data& memCert)
+{
   security::v2::Certificate cert(memCert);
   m_db.addMember(scheduleName, cert.getKeyName(), cert.getPublicKey());
 }
 
-void GroupManager::addMember(const std::string &scheduleName,
-                             const Name &keyName, const Buffer &key) {
+void
+GroupManager::addMember(const std::string& scheduleName, const Name& keyName, const Buffer& key)
+{
   m_db.addMember(scheduleName, keyName, key);
 }
 
-void GroupManager::removeMember(const Name &identity) {
+void
+GroupManager::removeMember(const Name& identity)
+{
   m_db.deleteMember(identity);
 }
 
-void GroupManager::updateMemberSchedule(const Name &identity,
-                                        const std::string &scheduleName) {
+void
+GroupManager::updateMemberSchedule(const Name& identity, const std::string& scheduleName)
+{
   m_db.updateMemberSchedule(identity, scheduleName);
 }
 
-Interval GroupManager::calculateInterval(const TimeStamp &timeslot,
-                                         std::map<Name, Buffer> &memberKeys) {
+Interval
+GroupManager::calculateInterval(const TimeStamp& timeslot, std::map<Name, Buffer>& memberKeys)
+{
   // prepare
   Interval positiveResult;
   Interval negativeResult;
@@ -150,22 +166,22 @@ Interval GroupManager::calculateInterval(const TimeStamp &timeslot,
   memberKeys.clear();
 
   // get the all intervals from schedules
-  for (const std::string &scheduleName : m_db.listAllScheduleNames()) {
-
-    const Schedule &schedule = m_db.getSchedule(scheduleName);
+  for (const std::string& scheduleName : m_db.listAllScheduleNames()) {
+    const Schedule& schedule = m_db.getSchedule(scheduleName);
     std::tie(isPositive, tempInterval) = schedule.getCoveringInterval(timeslot);
 
     if (isPositive) {
       if (!positiveResult.isValid())
         positiveResult = tempInterval;
-      positiveResult &&tempInterval;
+      positiveResult&& tempInterval;
 
       std::map<Name, Buffer> m = m_db.getScheduleMembers(scheduleName);
       memberKeys.insert(m.begin(), m.end());
-    } else {
+    }
+    else {
       if (!negativeResult.isValid())
         negativeResult = tempInterval;
-      negativeResult &&tempInterval;
+      negativeResult&& tempInterval;
     }
   }
   if (!positiveResult.isValid()) {
@@ -183,8 +199,9 @@ Interval GroupManager::calculateInterval(const TimeStamp &timeslot,
   return finalInterval;
 }
 
-void GroupManager::generateKeyPairs(Buffer &priKeyBuf,
-                                    Buffer &pubKeyBuf) const {
+void
+GroupManager::generateKeyPairs(Buffer& priKeyBuf, Buffer& pubKeyBuf) const
+{
   RandomNumberGenerator rng;
   RsaKeyParams params(m_paramLength);
   DecryptKey<algo::Rsa> privateKey = algo::Rsa::generateKey(rng, params);
@@ -193,9 +210,11 @@ void GroupManager::generateKeyPairs(Buffer &priKeyBuf,
   pubKeyBuf = publicKey.getKeyBits();
 }
 
-Data GroupManager::createEKeyData(const std::string &startTs,
-                                  const std::string &endTs,
-                                  const Buffer &pubKeyBuf) {
+Data
+GroupManager::createEKeyData(const std::string& startTs,
+                             const std::string& endTs,
+                             const Buffer& pubKeyBuf)
+{
   Name name(m_namespace);
   name.append(NAME_COMPONENT_E_KEY).append(startTs).append(endTs);
   Data data(name);
@@ -205,41 +224,56 @@ Data GroupManager::createEKeyData(const std::string &startTs,
   return data;
 }
 
-Data GroupManager::createDKeyData(const std::string &startTs,
-                                  const std::string &endTs, const Name &keyName,
-                                  const Buffer &priKeyBuf,
-                                  const Buffer &certKey) {
+Data
+GroupManager::createDKeyData(const std::string& startTs,
+                             const std::string& endTs,
+                             const Name& keyName,
+                             const Buffer& priKeyBuf,
+                             const Buffer& certKey)
+{
   Name name(m_namespace);
   name.append(NAME_COMPONENT_D_KEY);
   name.append(startTs).append(endTs);
   Data data = Data(name);
   data.setFreshnessPeriod(time::hours(m_freshPeriod));
   algo::EncryptParams eparams(tlv::AlgorithmRsaOaep);
-  std::cout << "Encrypting D-KEY using key: "
-            << toHex(certKey.buf(), certKey.size()) << std::endl;
-  algo::encryptData(data, priKeyBuf.buf(), priKeyBuf.size(), keyName,
-                    certKey.buf(), certKey.size(), eparams);
+  std::cout << "Encrypting D-KEY using key: " << toHex(certKey.buf(), certKey.size()) << std::endl;
+  algo::encryptData(data,
+                    priKeyBuf.buf(),
+                    priKeyBuf.size(),
+                    keyName,
+                    certKey.buf(),
+                    certKey.size(),
+                    eparams);
   m_keyChain.sign(data);
-  std::cout << "Encrypted D-KEY [" << name.toUri() << "] \r\n\t using "
-            << std::endl
+  std::cout << "Encrypted D-KEY [" << name.toUri() << "] \r\n\t using " << std::endl
             << toHex(certKey, true) << std::endl;
   return data;
 }
 
-void GroupManager::addEKey(const Name &eKeyName, const Buffer &pubKey,
-                           const Buffer &priKey) {
+void
+GroupManager::addEKey(const Name& eKeyName, const Buffer& pubKey, const Buffer& priKey)
+{
   m_db.addEKey(eKeyName, pubKey, priKey);
 }
 
-std::tuple<Buffer, Buffer> GroupManager::getEKey(const Name &eKeyName) {
+std::tuple<Buffer, Buffer>
+GroupManager::getEKey(const Name& eKeyName)
+{
   return m_db.getEKey(eKeyName);
 }
 
-void GroupManager::deleteEKey(const Name &eKeyName) {
+void
+GroupManager::deleteEKey(const Name& eKeyName)
+{
   m_db.deleteEKey(eKeyName);
 }
 
-void GroupManager::cleanEKeys() { m_db.cleanEKeys(); }
+void
+GroupManager::cleanEKeys()
+{
+  m_db.cleanEKeys();
+}
 
 } // namespace gep
 } // namespace ndn

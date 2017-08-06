@@ -21,24 +21,23 @@
 
 #include "consumer-db.hpp"
 
-#include <sqlite3.h>
-#include <boost/filesystem.hpp>
 #include <ndn-cxx/util/sqlite3-statement.hpp>
+#include <boost/filesystem.hpp>
+#include <sqlite3.h>
 
 namespace ndn {
 namespace gep {
 
 using util::Sqlite3Statement;
 
-static const std::string INITIALIZATION =
-  "CREATE TABLE IF NOT EXISTS                         \n"
-  "  decryptionkeys(                                  \n"
-  "    key_id              INTEGER PRIMARY KEY,       \n"
-  "    key_name            BLOB NOT NULL,             \n"
-  "    key_buf             BLOB NOT NULL              \n"
-  "  );                                               \n"
-  "CREATE UNIQUE INDEX IF NOT EXISTS                  \n"
-  "   KeyNameIndex ON decryptionkeys(key_name);       \n";
+static const std::string INITIALIZATION = "CREATE TABLE IF NOT EXISTS                         \n"
+                                          "  decryptionkeys(                                  \n"
+                                          "    key_id              INTEGER PRIMARY KEY,       \n"
+                                          "    key_name            BLOB NOT NULL,             \n"
+                                          "    key_buf             BLOB NOT NULL              \n"
+                                          "  );                                               \n"
+                                          "CREATE UNIQUE INDEX IF NOT EXISTS                  \n"
+                                          "   KeyNameIndex ON decryptionkeys(key_name);       \n";
 
 class ConsumerDB::Impl
 {
@@ -47,14 +46,15 @@ public:
   {
     // open Database
 
-    int result = sqlite3_open_v2(dbPath.c_str(), &m_database,
+    int result = sqlite3_open_v2(dbPath.c_str(),
+                                 &m_database,
                                  SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 #ifdef NDN_CXX_DISABLE_SQLITE3_FS_LOCKING
                                  "unix-dotfile"
 #else
                                  nullptr
 #endif
-                                 );
+    );
 
     if (result != SQLITE_OK)
       BOOST_THROW_EXCEPTION(Error("GroupManager DB cannot be opened/created: " + dbPath));
@@ -88,8 +88,7 @@ ConsumerDB::~ConsumerDB() = default;
 const Buffer
 ConsumerDB::getKey(const Name& keyName) const
 {
-  Sqlite3Statement statement(m_impl->m_database,
-                             "SELECT key_buf FROM decryptionkeys\
+  Sqlite3Statement statement(m_impl->m_database, "SELECT key_buf FROM decryptionkeys\
                               WHERE key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
@@ -103,8 +102,7 @@ ConsumerDB::getKey(const Name& keyName) const
 void
 ConsumerDB::addKey(const Name& keyName, const Buffer& keyBuf)
 {
-  Sqlite3Statement statement(m_impl->m_database,
-                             "INSERT INTO decryptionkeys(key_name, key_buf)\
+  Sqlite3Statement statement(m_impl->m_database, "INSERT INTO decryptionkeys(key_name, key_buf)\
                               values (?, ?)");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
   statement.bind(2, keyBuf.buf(), keyBuf.size(), SQLITE_TRANSIENT);
@@ -116,8 +114,7 @@ ConsumerDB::addKey(const Name& keyName, const Buffer& keyBuf)
 void
 ConsumerDB::deleteKey(const Name& keyName)
 {
-  Sqlite3Statement statement(m_impl->m_database,
-                             "DELETE FROM decryptionkeys WHERE key_name=?");
+  Sqlite3Statement statement(m_impl->m_database, "DELETE FROM decryptionkeys WHERE key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
   statement.step();
 }

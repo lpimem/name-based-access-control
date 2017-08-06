@@ -38,16 +38,14 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : std::runtime_error(what)
     {
     }
   };
 
 public:
-  explicit
-  ProducerDB(const std::string& dbPath);
+  explicit ProducerDB(const std::string& dbPath);
 
   ~ProducerDB();
 

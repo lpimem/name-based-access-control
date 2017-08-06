@@ -78,15 +78,14 @@ RepetitiveInterval::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   // RepeatUnit
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::RepeatUnit,
-                                                  static_cast<size_t>(m_unit));
+  totalLength +=
+    prependNonNegativeIntegerBlock(encoder, tlv::RepeatUnit, static_cast<size_t>(m_unit));
   // NRepeat
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::NRepeats, m_nRepeats);
   // IntervalEndHour
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::IntervalEndHour, m_intervalEndHour);
   // IntervalStartHour
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::IntervalStartHour,
-                                                m_intervalStartHour);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::IntervalStartHour, m_intervalStartHour);
   // EndDate
   totalLength += prependStringBlock(encoder, tlv::EndDate, to_iso_string(m_endDate));
   // StartDate
@@ -242,8 +241,7 @@ RepetitiveInterval::hasIntervalOnDate(const TimeStamp& tp) const
     if (monthDiff % m_nRepeats == 0)
       return true;
   }
-  else if (m_unit == RepeatUnit::YEAR &&
-           dateA.day().as_number() == dateB.day().as_number() &&
+  else if (m_unit == RepeatUnit::YEAR && dateA.day().as_number() == dateB.day().as_number() &&
            dateA.month().as_number() == dateB.month().as_number()) {
     size_t diff = static_cast<size_t>(dateA.year() - dateB.year());
     if (diff % m_nRepeats == 0)

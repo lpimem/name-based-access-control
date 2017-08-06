@@ -17,8 +17,8 @@
  * gep, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../random-number-generator.hpp"
 #include "encrypt-params.hpp"
+#include "../random-number-generator.hpp"
 
 namespace ndn {
 namespace gep {
@@ -27,7 +27,7 @@ namespace algo {
 EncryptParams::EncryptParams(tlv::AlgorithmTypeValue algorithm, uint8_t ivLength)
   : m_algo(algorithm)
 {
-  if (ivLength != 0){
+  if (ivLength != 0) {
     RandomNumberGenerator rng;
     m_iv.resize(ivLength);
     rng.GenerateBlock(m_iv.buf(), m_iv.size());

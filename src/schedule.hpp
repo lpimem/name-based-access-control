@@ -39,8 +39,7 @@ class Schedule
 public:
   Schedule();
 
-  explicit
-  Schedule(const Block& block);
+  explicit Schedule(const Block& block);
 
 public:
   template<encoding::Tag TAG>

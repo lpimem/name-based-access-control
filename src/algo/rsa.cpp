@@ -17,9 +17,9 @@
  * gep, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ndn-cxx/encoding/buffer-stream.hpp>
 #include "rsa.hpp"
 #include "error.hpp"
+#include <ndn-cxx/encoding/buffer-stream.hpp>
 
 namespace ndn {
 namespace gep {
@@ -69,8 +69,10 @@ Rsa::deriveEncryptKey(const Buffer& keyBits)
 }
 
 Buffer
-Rsa::decrypt(const uint8_t* key, size_t keyLen,
-             const uint8_t* payload, size_t payloadLen,
+Rsa::decrypt(const uint8_t* key,
+             size_t keyLen,
+             const uint8_t* payload,
+             size_t payloadLen,
              const EncryptParams& params)
 {
   AutoSeededRandomPool rng;
@@ -97,8 +99,10 @@ Rsa::decrypt(const uint8_t* key, size_t keyLen,
 }
 
 Buffer
-Rsa::encrypt(const uint8_t* key, size_t keyLen,
-             const uint8_t* payload, size_t payloadLen,
+Rsa::encrypt(const uint8_t* key,
+             size_t keyLen,
+             const uint8_t* payload,
+             size_t payloadLen,
              const EncryptParams& params)
 {
   AutoSeededRandomPool rng;

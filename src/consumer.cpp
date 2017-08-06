@@ -30,7 +30,8 @@ const Link Consumer::NO_LINK = Link();
 
 // public
 Consumer::Consumer(Face& face,
-                   const Name& groupName, const Name& consumerName,
+                   const Name& groupName,
+                   const Name& consumerName,
                    const std::string& dbPath,
                    const Link& cKeyLink,
                    const Link& dKeyLink)
@@ -67,12 +68,11 @@ Consumer::consume(const Name& contentName,
   shared_ptr<Interest> interest = make_shared<Interest>(contentName);
 
   // prepare callback functions
-  auto validationCallback =
-    [=] (const shared_ptr<const Data>& validData) {
-      // decrypt content
-      decryptContent(*validData,
-                     [=] (const Buffer& plainText) { consumptionCallBack(*validData, plainText); },
-                     errorCallback);
+  auto validationCallback = [=](const shared_ptr<const Data>& validData) {
+    // decrypt content
+    decryptContent(*validData,
+                   [=](const Buffer& plainText) { consumptionCallBack(*validData, plainText); },
+                   errorCallback);
   };
 
   sendInterest(*interest, 1, link, validationCallback, errorCallback);
@@ -97,9 +97,8 @@ Consumer::decrypt(const Block& encryptedBlock,
                           encryptedContent.getInitialVector().size());
 
       // decrypt content
-      Buffer content = algo::Aes::decrypt(keyBits.buf(), keyBits.size(),
-                                          payload.buf(), payload.size(),
-                                          decryptParams);
+      Buffer content =
+        algo::Aes::decrypt(keyBits.buf(), keyBits.size(), payload.buf(), payload.size(), decryptParams);
       plainTextCallBack(content);
       break;
     }
@@ -108,9 +107,8 @@ Consumer::decrypt(const Block& encryptedBlock,
       algo::EncryptParams decryptParams(tlv::AlgorithmRsaOaep);
 
       // decrypt content
-      Buffer content = algo::Rsa::decrypt(keyBits.buf(), keyBits.size(),
-                                          payload.buf(), payload.size(),
-                                          decryptParams);
+      Buffer content =
+        algo::Rsa::decrypt(keyBits.buf(), keyBits.size(), payload.buf(), payload.size(), decryptParams);
       plainTextCallBack(content);
       break;
     }
@@ -143,11 +141,10 @@ Consumer::decryptContent(const Data& data,
     shared_ptr<Interest> interest = make_shared<Interest>(interestName);
 
     // prepare callback functions
-    auto validationCallback =
-      [=] (const shared_ptr<const Data>& validCKeyData) {
+    auto validationCallback = [=](const shared_ptr<const Data>& validCKeyData) {
       // decrypt content
       decryptCKey(*validCKeyData,
-                  [=] (const Buffer& cKeyBits) {
+                  [=](const Buffer& cKeyBits) {
                     decrypt(encryptedContent, cKeyBits, plainTextCallBack, errorCallback);
                     this->m_cKeyMap.insert(std::make_pair(cKeyName, cKeyBits));
                   },
@@ -183,11 +180,10 @@ Consumer::decryptCKey(const Data& cKeyData,
     shared_ptr<Interest> interest = make_shared<Interest>(interestName);
 
     // prepare callback functions
-    auto validationCallback =
-      [=] (const shared_ptr<const Data>& validDKeyData) {
+    auto validationCallback = [=](const shared_ptr<const Data>& validDKeyData) {
       // decrypt content
       decryptDKey(*validDKeyData,
-                  [=] (const Buffer& dKeyBits) {
+                  [=](const Buffer& dKeyBits) {
                     decrypt(cKeyContent, dKeyBits, plainTextCallBack, errorCallback);
                     this->m_dKeyMap.insert(std::make_pair(dKeyName, dKeyBits));
                   },
@@ -219,8 +215,7 @@ Consumer::decryptDKey(const Data& dKeyData,
   // get consumer decryption key
   Buffer consumerKeyBuf = getDecryptionKey(consumerKeyName);
   if (consumerKeyBuf.empty()) {
-    errorCallback(ErrorCode::NoDecryptKey,
-                  "No desired consumer decryption key in database");
+    errorCallback(ErrorCode::NoDecryptKey, "No desired consumer decryption key in database");
     return;
   }
 
@@ -229,8 +224,9 @@ Consumer::decryptDKey(const Data& dKeyData,
   Block encryptedPayloadBlock = *it;
 
   // decrypt d-key
-  decrypt(encryptedNonceBlock, consumerKeyBuf,
-          [&] (const Buffer& nonceKeyBits) {
+  decrypt(encryptedNonceBlock,
+          consumerKeyBuf,
+          [&](const Buffer& nonceKeyBits) {
             decrypt(encryptedPayloadBlock, nonceKeyBits, plainTextCallBack, errorCallback);
           },
           errorCallback);
@@ -243,17 +239,19 @@ Consumer::getDecryptionKey(const Name& decryptionKeyName)
 }
 
 void
-Consumer::sendInterest(const Interest& interest, int nRetrials,
+Consumer::sendInterest(const Interest& interest,
+                       int nRetrials,
                        const Link& link,
                        const OnDataValidated& validationCallback,
                        const ErrorCallBack& errorCallback)
 {
-  auto dataCallback = [=] (const Interest& contentInterest, const Data& contentData) {
+  auto dataCallback = [=](const Interest& contentInterest, const Data& contentData) {
     if (!contentInterest.matchesData(contentData))
       return;
 
-    this->m_validator->validate(contentData, validationCallback,
-                                [=] (const shared_ptr<const Data>& d, const std::string& e) {
+    this->m_validator->validate(contentData,
+                                validationCallback,
+                                [=](const shared_ptr<const Data>& d, const std::string& e) {
                                   errorCallback(ErrorCode::Validation, e);
                                 });
   };
@@ -264,24 +262,35 @@ Consumer::sendInterest(const Interest& interest, int nRetrials,
     request.setLink(link.wireEncode());
   }
 
-  m_face.expressInterest(request, dataCallback,
-                         std::bind(&Consumer::handleNack, this, _1, _2,
-                                   link, validationCallback, errorCallback),
-                         std::bind(&Consumer::handleTimeout, this, _1, nRetrials,
-                                   link, validationCallback, errorCallback));
+  m_face.expressInterest(request,
+                         dataCallback,
+                         std::bind(&Consumer::handleNack, this, _1, _2, link, validationCallback, errorCallback),
+                         std::bind(&Consumer::handleTimeout,
+                                   this,
+                                   _1,
+                                   nRetrials,
+                                   link,
+                                   validationCallback,
+                                   errorCallback));
 }
 
 void
-Consumer::handleNack(const Interest& interest, const lp::Nack& nack, const Link& link,
-                     const OnDataValidated& callback, const ErrorCallBack& errorCallback)
+Consumer::handleNack(const Interest& interest,
+                     const lp::Nack& nack,
+                     const Link& link,
+                     const OnDataValidated& callback,
+                     const ErrorCallBack& errorCallback)
 {
   // we run out of options, report retrieval failure.
   errorCallback(ErrorCode::DataRetrievalFailure, interest.getName().toUri());
 }
 
 void
-Consumer::handleTimeout(const Interest& interest, int nRetrials, const Link& link,
-                        const OnDataValidated& callback, const ErrorCallBack& errorCallback)
+Consumer::handleTimeout(const Interest& interest,
+                        int nRetrials,
+                        const Link& link,
+                        const OnDataValidated& callback,
+                        const ErrorCallBack& errorCallback)
 {
   if (nRetrials > 0) {
     sendInterest(interest, nRetrials - 1, link, callback, errorCallback);

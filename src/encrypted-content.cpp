@@ -19,9 +19,12 @@ EncryptedContent::EncryptedContent()
 {
 }
 
-EncryptedContent::EncryptedContent(tlv::AlgorithmTypeValue type, const KeyLocator& keyLocator,
-                                   const uint8_t* payload, size_t payloadLen,
-                                   const uint8_t* iv, size_t ivLen)
+EncryptedContent::EncryptedContent(tlv::AlgorithmTypeValue type,
+                                   const KeyLocator& keyLocator,
+                                   const uint8_t* payload,
+                                   size_t payloadLen,
+                                   const uint8_t* iv,
+                                   size_t ivLen)
   : m_type(type)
   , m_hasKeyLocator(true)
   , m_keyLocator(keyLocator)
@@ -93,7 +96,8 @@ EncryptedContent::wireEncode(EncodingImpl<TAG>& block) const
   size_t totalLength = 0;
 
   if (m_payload.size() != 0)
-    totalLength += block.prependByteArrayBlock(tlv::EncryptedPayload, m_payload.buf(), m_payload.size());
+    totalLength +=
+      block.prependByteArrayBlock(tlv::EncryptedPayload, m_payload.buf(), m_payload.size());
   else
     throw Error("EncryptedContent does not have a payload");
 

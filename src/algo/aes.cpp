@@ -17,9 +17,9 @@
  * gep, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ndn-cxx/encoding/buffer-stream.hpp>
 #include "aes.hpp"
 #include "error.hpp"
+#include <ndn-cxx/encoding/buffer-stream.hpp>
 
 namespace ndn {
 namespace gep {
@@ -31,15 +31,14 @@ static Buffer
 transform(CipherModeBase* cipher, const uint8_t* data, size_t dataLen)
 {
   OBufferStream obuf;
-  StringSource pipe(data, dataLen, true,
-                    new StreamTransformationFilter(*cipher, new FileSink(obuf)));
+  StringSource pipe(data, dataLen, true, new StreamTransformationFilter(*cipher, new FileSink(obuf)));
   return *(obuf.buf());
 }
 
 DecryptKey<Aes>
 Aes::generateKey(RandomNumberGenerator& rng, AesKeyParams& params)
 {
-  SecByteBlock key(0x00, params.getKeySize() >> 3);  // Converting key bit-size to byte-size.
+  SecByteBlock key(0x00, params.getKeySize() >> 3); // Converting key bit-size to byte-size.
   rng.GenerateBlock(key.data(), key.size());
 
   DecryptKey<Aes> decryptKey(Buffer(key.data(), key.size()));
@@ -55,8 +54,10 @@ Aes::deriveEncryptKey(const Buffer& keyBits)
 }
 
 Buffer
-Aes::decrypt(const uint8_t* key, size_t keyLen,
-             const uint8_t* payload, size_t payloadLen,
+Aes::decrypt(const uint8_t* key,
+             size_t keyLen,
+             const uint8_t* payload,
+             size_t payloadLen,
              const EncryptParams& params)
 {
   switch (params.getAlgorithmType()) {
@@ -78,8 +79,10 @@ Aes::decrypt(const uint8_t* key, size_t keyLen,
 }
 
 Buffer
-Aes::encrypt(const uint8_t* key, size_t keyLen,
-             const uint8_t* payload, size_t payloadLen,
+Aes::encrypt(const uint8_t* key,
+             size_t keyLen,
+             const uint8_t* payload,
+             size_t payloadLen,
              const EncryptParams& params)
 {
   switch (params.getAlgorithmType()) {

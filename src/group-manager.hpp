@@ -36,8 +36,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : std::runtime_error(what)
     {
     }
@@ -53,8 +52,11 @@ public:
    * The group key will be an RSA key with @p paramLength bits.
    * The FreshnessPeriod of data packet carrying the keys will be set to @p freshPeriod hours.
    */
-  GroupManager(const Name& prefix, const Name& dataType, const std::string& dbPath,
-               const int paramLength, const int freshPeriod);
+  GroupManager(const Name& prefix,
+               const Name& dataType,
+               const std::string& dbPath,
+               const int paramLength,
+               const int freshPeriod);
 
   /**
    * @brief Create a group key for interval which
@@ -102,13 +104,13 @@ public:
   updateMemberSchedule(const Name& identity, const std::string& scheduleName);
 
 
-PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  /**
+  PUBLIC_WITH_TESTS_ELSE_PRIVATE :
+    /**
    * @brief Calculate interval that covers @p timeslot
    * and fill @p memberKeys with the info of members who is allowed to access the interval.
    */
-  Interval
-  calculateInterval(const TimeStamp& timeslot, std::map<Name, Buffer>& certMap);
+    Interval
+    calculateInterval(const TimeStamp& timeslot, std::map<Name, Buffer>& certMap);
 
   /**
    * @brief Generate rsa key pairs according to the member variable m_paramLength.
@@ -120,13 +122,15 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
   /// @brief Create E-KEY data.
   Data
-  createEKeyData(const std::string& startTs, const std::string& endTs,
-                 const Buffer& pubKeyBuf);
+  createEKeyData(const std::string& startTs, const std::string& endTs, const Buffer& pubKeyBuf);
 
   /// @brief Create D-KEY data.
   Data
-  createDKeyData(const std::string& startTs, const std::string& endTs, const Name& keyName,
-                 const Buffer& priKeyBuf, const Buffer& certKey);
+  createDKeyData(const std::string& startTs,
+                 const std::string& endTs,
+                 const Name& keyName,
+                 const Buffer& priKeyBuf,
+                 const Buffer& certKey);
 
   /// @brief Add a EKey to the database
   void

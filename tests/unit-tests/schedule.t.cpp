@@ -35,16 +35,24 @@ BOOST_AUTO_TEST_CASE(CalIntervalWithBlackAndWhite)
   Schedule schedule;
   RepetitiveInterval interval1(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               5, 10, 2, RepetitiveInterval::RepeatUnit::DAY);
+                               5,
+                               10,
+                               2,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval2(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               6, 8, 1, RepetitiveInterval::RepeatUnit::DAY);
+                               6,
+                               8,
+                               1,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval3(from_iso_string("20150827T000000"),
                                from_iso_string("20150827T000000"),
-                               7, 8);
+                               7,
+                               8);
   RepetitiveInterval interval4(from_iso_string("20150825T000000"),
                                from_iso_string("20150825T000000"),
-                               4, 7);
+                               4,
+                               7);
 
   schedule.addWhiteInterval(interval1);
   schedule.addWhiteInterval(interval2);
@@ -104,13 +112,20 @@ BOOST_AUTO_TEST_CASE(CalIntervalWithoutBlack)
   Schedule schedule;
   RepetitiveInterval interval1(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               5, 10, 2, RepetitiveInterval::RepeatUnit::DAY);
+                               5,
+                               10,
+                               2,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval2(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               6, 8, 1, RepetitiveInterval::RepeatUnit::DAY);
+                               6,
+                               8,
+                               1,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval3(from_iso_string("20150825T000000"),
                                from_iso_string("20150825T000000"),
-                               4, 7);
+                               4,
+                               7);
 
   schedule.addWhiteInterval(interval1);
   schedule.addWhiteInterval(interval2);
@@ -162,10 +177,16 @@ BOOST_AUTO_TEST_CASE(CalIntervalWithoutWhite)
   Schedule schedule;
   RepetitiveInterval interval1(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               5, 10, 2, RepetitiveInterval::RepeatUnit::DAY);
+                               5,
+                               10,
+                               2,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval2(from_iso_string("20150825T000000"),
                                from_iso_string("20150827T000000"),
-                               6, 8, 1, RepetitiveInterval::RepeatUnit::DAY);
+                               6,
+                               8,
+                               1,
+                               RepetitiveInterval::RepeatUnit::DAY);
 
   schedule.addBlackInterval(interval1);
   schedule.addBlackInterval(interval2);
@@ -190,68 +211,209 @@ BOOST_AUTO_TEST_CASE(CalIntervalWithoutWhite)
   BOOST_CHECK_EQUAL(to_iso_string(resultInterval.getEndTime()), "20150826T000000");
 }
 
-const uint8_t SCHEDULE[] = {
-  0x8f, 0xc4,// Schedule
-  0x8d, 0x90,// WhiteIntervalList
-  /////
-  0x8c, 0x2e, // RepetitiveInterval
-    0x86, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x87, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x88, 0x01,
-      0x04,
-    0x89, 0x01,
-      0x07,
-    0x8a, 0x01,
-      0x00,
-    0x8b, 0x01,
-      0x00,
-  /////
-  0x8c, 0x2e, // RepetitiveInterval
-    0x86, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x87, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x38, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x88, 0x01,
-      0x05,
-    0x89, 0x01,
-      0x0a,
-    0x8a, 0x01,
-      0x02,
-    0x8b, 0x01,
-      0x01,
-  /////
-  0x8c, 0x2e, // RepetitiveInterval
-    0x86, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x87, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x38, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x88, 0x01,
-      0x06,
-    0x89, 0x01,
-      0x08,
-    0x8a, 0x01,
-      0x01,
-    0x8b, 0x01,
-      0x01,
-  /////
-  0x8e, 0x30, // BlackIntervalList
-  /////
-  0x8c, 0x2e, // RepetitiveInterval
-     0x86, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x37, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x87, 0x0f,
-      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x37, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-    0x88, 0x01,
-      0x07,
-    0x89, 0x01,
-      0x08,
-    0x8a, 0x01,
-      0x00,
-    0x8b, 0x01,
-      0x00
-};
+const uint8_t SCHEDULE[] = {0x8f,
+                            0xc4, // Schedule
+                            0x8d,
+                            0x90, // WhiteIntervalList
+                            /////
+                            0x8c,
+                            0x2e, // RepetitiveInterval
+                            0x86,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x35,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x87,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x35,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x88,
+                            0x01,
+                            0x04,
+                            0x89,
+                            0x01,
+                            0x07,
+                            0x8a,
+                            0x01,
+                            0x00,
+                            0x8b,
+                            0x01,
+                            0x00,
+                            /////
+                            0x8c,
+                            0x2e, // RepetitiveInterval
+                            0x86,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x35,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x87,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x38,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x88,
+                            0x01,
+                            0x05,
+                            0x89,
+                            0x01,
+                            0x0a,
+                            0x8a,
+                            0x01,
+                            0x02,
+                            0x8b,
+                            0x01,
+                            0x01,
+                            /////
+                            0x8c,
+                            0x2e, // RepetitiveInterval
+                            0x86,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x35,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x87,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x38,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x88,
+                            0x01,
+                            0x06,
+                            0x89,
+                            0x01,
+                            0x08,
+                            0x8a,
+                            0x01,
+                            0x01,
+                            0x8b,
+                            0x01,
+                            0x01,
+                            /////
+                            0x8e,
+                            0x30, // BlackIntervalList
+                            /////
+                            0x8c,
+                            0x2e, // RepetitiveInterval
+                            0x86,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x37,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x87,
+                            0x0f,
+                            0x32,
+                            0x30,
+                            0x31,
+                            0x35,
+                            0x30,
+                            0x38,
+                            0x32,
+                            0x37,
+                            0x54,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x30,
+                            0x88,
+                            0x01,
+                            0x07,
+                            0x89,
+                            0x01,
+                            0x08,
+                            0x8a,
+                            0x01,
+                            0x00,
+                            0x8b,
+                            0x01,
+                            0x00};
 
 BOOST_AUTO_TEST_CASE(EncodeAndDecode)
 {
@@ -259,16 +421,24 @@ BOOST_AUTO_TEST_CASE(EncodeAndDecode)
 
   RepetitiveInterval interval1(from_iso_string("20150825T000000"),
                                from_iso_string("20150828T000000"),
-                               5, 10, 2, RepetitiveInterval::RepeatUnit::DAY);
+                               5,
+                               10,
+                               2,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval2(from_iso_string("20150825T000000"),
                                from_iso_string("20150828T000000"),
-                               6, 8, 1, RepetitiveInterval::RepeatUnit::DAY);
+                               6,
+                               8,
+                               1,
+                               RepetitiveInterval::RepeatUnit::DAY);
   RepetitiveInterval interval3(from_iso_string("20150827T000000"),
                                from_iso_string("20150827T000000"),
-                               7, 8);
+                               7,
+                               8);
   RepetitiveInterval interval4(from_iso_string("20150825T000000"),
                                from_iso_string("20150825T000000"),
-                               4, 7);
+                               4,
+                               7);
 
   schedule.addWhiteInterval(interval1);
   schedule.addWhiteInterval(interval2);

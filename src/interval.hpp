@@ -38,8 +38,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : std::runtime_error(what)
     {
     }
@@ -51,11 +50,9 @@ public:
    *
    * @param isValid If isValid is true, the created interval is an empty interval
    */
-  explicit
-  Interval(bool isValid = false);
+  explicit Interval(bool isValid = false);
 
-  Interval(const TimeStamp& startTime,
-           const TimeStamp& endTime);
+  Interval(const TimeStamp& startTime, const TimeStamp& endTime);
 
   /**
    * @brief Check if the timestamp tp is in the interval
@@ -73,7 +70,7 @@ public:
    * Two intervals should all be valid but they can be empty
    */
   Interval&
-  operator &&(const Interval& interval);
+  operator&&(const Interval& interval);
 
   /**
    * @brief Get the union set interval of two intervals
@@ -82,7 +79,7 @@ public:
    * Two intervals should all be valid but they can be empty
    */
   Interval&
-  operator ||(const Interval& interval);
+  operator||(const Interval& interval);
 
   const TimeStamp&
   getStartTime() const

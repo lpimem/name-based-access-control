@@ -32,18 +32,12 @@ namespace gep {
 class RepetitiveInterval
 {
 public:
-  enum class RepeatUnit{
-    NONE = 0,
-    DAY = 1,
-    MONTH = 2,
-    YEAR = 3
-  };
+  enum class RepeatUnit { NONE = 0, DAY = 1, MONTH = 2, YEAR = 3 };
 
 public:
   RepetitiveInterval();
 
-  explicit
-  RepetitiveInterval(const Block& block);
+  explicit RepetitiveInterval(const Block& block);
 
   /**
    * @brief Construction to create an object

@@ -18,10 +18,10 @@
  */
 
 #include "encryptor.hpp"
-#include "../random-number-generator.hpp"
-#include "../encrypted-content.hpp"
 #include "aes.hpp"
 #include "rsa.hpp"
+#include "../encrypted-content.hpp"
+#include "../random-number-generator.hpp"
 
 #include "error.hpp"
 
@@ -39,9 +39,12 @@ using namespace CryptoPP;
  * @return An EncryptedContent
  */
 static EncryptedContent
-encryptSymmetric(const uint8_t* payload, size_t payloadLen,
-                 const uint8_t* key, size_t keyLen,
-                 const Name& keyName, const EncryptParams& params)
+encryptSymmetric(const uint8_t* payload,
+                 size_t payloadLen,
+                 const uint8_t* key,
+                 size_t keyLen,
+                 const Name& keyName,
+                 const EncryptParams& params)
 {
   tlv::AlgorithmTypeValue algType = params.getAlgorithmType();
   const Buffer& iv = params.getIV();
@@ -50,12 +53,22 @@ encryptSymmetric(const uint8_t* payload, size_t payloadLen,
   switch (algType) {
     case tlv::AlgorithmAesEcb: {
       const Buffer& encryptedPayload = Aes::encrypt(key, keyLen, payload, payloadLen, params);
-      return EncryptedContent(algType, keyLocator, encryptedPayload.buf(), encryptedPayload.size(), iv.buf(), iv.size());
+      return EncryptedContent(algType,
+                              keyLocator,
+                              encryptedPayload.buf(),
+                              encryptedPayload.size(),
+                              iv.buf(),
+                              iv.size());
     }
     case tlv::AlgorithmAesCbc: {
       BOOST_ASSERT(iv.size() == static_cast<size_t>(AES::BLOCKSIZE));
       const Buffer& encryptedPayload = Aes::encrypt(key, keyLen, payload, payloadLen, params);
-      return EncryptedContent(algType, keyLocator, encryptedPayload.buf(), encryptedPayload.size(), iv.buf(), iv.size());
+      return EncryptedContent(algType,
+                              keyLocator,
+                              encryptedPayload.buf(),
+                              encryptedPayload.size(),
+                              iv.buf(),
+                              iv.size());
     }
     default: {
       BOOST_ASSERT(false);
@@ -73,9 +86,12 @@ encryptSymmetric(const uint8_t* payload, size_t payloadLen,
  * @return An EncryptedContent
  */
 static EncryptedContent
-encryptAsymmetric(const uint8_t* payload, size_t payloadLen,
-                  const uint8_t* key, size_t keyLen,
-                  const Name& keyName, const EncryptParams& params)
+encryptAsymmetric(const uint8_t* payload,
+                  size_t payloadLen,
+                  const uint8_t* key,
+                  size_t keyLen,
+                  const Name& keyName,
+                  const EncryptParams& params)
 {
   tlv::AlgorithmTypeValue algType = params.getAlgorithmType();
   KeyLocator keyLocator(keyName);
@@ -94,17 +110,22 @@ encryptAsymmetric(const uint8_t* payload, size_t payloadLen,
 }
 
 void
-encryptData(Data& data, const uint8_t* payload, size_t payloadLen,
-            const Name& keyName, const uint8_t* key, size_t keyLen,
+encryptData(Data& data,
+            const uint8_t* payload,
+            size_t payloadLen,
+            const Name& keyName,
+            const uint8_t* key,
+            size_t keyLen,
             const EncryptParams& params)
 {
   Name dataName = data.getName();
   dataName.append(NAME_COMPONENT_FOR).append(keyName);
   data.setName(dataName);
-  switch(params.getAlgorithmType()) {
+  switch (params.getAlgorithmType()) {
     case tlv::AlgorithmAesCbc:
     case tlv::AlgorithmAesEcb: {
-      const EncryptedContent& content = encryptSymmetric(payload, payloadLen, key, keyLen, keyName, params);
+      const EncryptedContent& content =
+        encryptSymmetric(payload, payloadLen, key, keyLen, keyName, params);
       data.setContent(content.wireEncode());
       break;
     }
@@ -121,7 +142,7 @@ encryptData(Data& data, const uint8_t* payload, size_t payloadLen,
 
       if (maxPlaintextLength < payloadLen) {
         RandomNumberGenerator rng;
-        SecByteBlock nonceKey(0x00, 16);  // 128 bits key.
+        SecByteBlock nonceKey(0x00, 16); // 128 bits key.
         rng.GenerateBlock(nonceKey.data(), nonceKey.size());
 
         Name nonceKeyName(keyName);
@@ -143,7 +164,8 @@ encryptData(Data& data, const uint8_t* payload, size_t payloadLen,
         return;
       }
       else {
-        const EncryptedContent& content = encryptAsymmetric(payload, payloadLen, key, keyLen, keyName, params);
+        const EncryptedContent& content =
+          encryptAsymmetric(payload, payloadLen, key, keyLen, keyName, params);
         data.setContent(content.wireEncode());
         return;
       }

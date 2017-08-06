@@ -15,23 +15,24 @@ class EncryptedContent
 public:
   class Error : public ndn::tlv::Error
   {
-    public:
-      explicit
-      Error(const std::string& what)
+  public:
+    explicit Error(const std::string& what)
       : ndn::tlv::Error(what)
-      {
-      }
+    {
+    }
   };
 
 public:
   EncryptedContent();
 
-  EncryptedContent(tlv::AlgorithmTypeValue type, const KeyLocator& keyLocator,
-                   const uint8_t* payload, size_t payloadLen,
-                   const uint8_t* iv = 0, size_t ivLen = 0);
+  EncryptedContent(tlv::AlgorithmTypeValue type,
+                   const KeyLocator& keyLocator,
+                   const uint8_t* payload,
+                   size_t payloadLen,
+                   const uint8_t* iv = 0,
+                   size_t ivLen = 0);
 
-  explicit
-  EncryptedContent(const Block& block);
+  explicit EncryptedContent(const Block& block);
 
   void
   setAlgorithmType(tlv::AlgorithmTypeValue type);
@@ -45,7 +46,7 @@ public:
   bool
   hasKeyLocator() const
   {
-   return m_hasKeyLocator;
+    return m_hasKeyLocator;
   }
 
   void

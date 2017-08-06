@@ -1,8 +1,8 @@
 #ifndef NDN_GEP_ENCRYPT_PARAMS_HPP
 #define NDN_GEP_ENCRYPT_PARAMS_HPP
 
-#include <ndn-cxx/encoding/buffer-stream.hpp>
 #include "../tlv.hpp"
+#include <ndn-cxx/encoding/buffer-stream.hpp>
 
 namespace ndn {
 namespace gep {

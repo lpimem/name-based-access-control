@@ -38,8 +38,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : std::runtime_error(what)
     {
     }
@@ -49,8 +48,7 @@ public:
   /**
    * @brief Create the database of group manager at path @p dbPath.
    */
-  explicit
-  GroupManagerDB(const std::string& dbPath);
+  explicit GroupManagerDB(const std::string& dbPath);
 
   ~GroupManagerDB();
 
@@ -147,8 +145,7 @@ public:
    * @throw Error if add operation fails, e.g., the added member exists
    */
   void
-  addMember(const std::string& scheduleName, const Name& keyName,
-            const Buffer& key);
+  addMember(const std::string& scheduleName, const Name& keyName, const Buffer& key);
 
   /**
    * @brief Change the schedule of a member with name @p identity to a schedule with @p scheduleName

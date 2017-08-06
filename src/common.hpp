@@ -46,15 +46,15 @@
 #include <cstddef>
 #include <list>
 #include <map>
-#include <set>
 #include <queue>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 #include <ndn-cxx/common.hpp>
-#include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/data.hpp>
+#include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/util/signal.hpp>
 
 #include <boost/algorithm/string.hpp>

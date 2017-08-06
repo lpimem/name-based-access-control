@@ -36,8 +36,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
+    explicit Error(const std::string& what)
       : std::runtime_error(what)
     {
     }
@@ -46,8 +45,7 @@ public:
 public:
   /** @brief Create a consumer database at @p dbPath
    */
-  explicit
-  ConsumerDB(const std::string& dbPath);
+  explicit ConsumerDB(const std::string& dbPath);
 
   ~ConsumerDB();
 

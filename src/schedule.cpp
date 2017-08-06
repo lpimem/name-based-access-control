@@ -36,8 +36,10 @@ namespace gep {
  * @p negativeR The negative result
  */
 static void
-calIntervalResult(const std::set<RepetitiveInterval>& list, const TimeStamp& ts,
-                  Interval& positiveR, Interval& negativeR)
+calIntervalResult(const std::set<RepetitiveInterval>& list,
+                  const TimeStamp& ts,
+                  Interval& positiveR,
+                  Interval& negativeR)
 {
   Interval tempInterval;
   bool isPositive;
@@ -51,7 +53,7 @@ calIntervalResult(const std::set<RepetitiveInterval>& list, const TimeStamp& ts,
       if (!negativeR.isValid())
         negativeR = tempInterval;
       else
-        negativeR && tempInterval;
+        negativeR&& tempInterval;
     }
   }
 }
@@ -176,22 +178,21 @@ Schedule::getCoveringInterval(const TimeStamp& ts) const
   Interval whiteNegativeResult;
 
   // get the blackResult
-  calIntervalResult(m_blackIntervalList, ts,
-                    blackPositiveResult, blackNegativeResult);
+  calIntervalResult(m_blackIntervalList, ts, blackPositiveResult, blackNegativeResult);
 
   // if black positive result is not empty, the result must be false
   if (!blackPositiveResult.isEmpty())
     return std::make_tuple(false, blackPositiveResult);
 
   // get the whiteResult
-  calIntervalResult(m_whiteIntervalList, ts,
-                    whitePositiveResult, whiteNegativeResult);
+  calIntervalResult(m_whiteIntervalList, ts, whitePositiveResult, whiteNegativeResult);
 
   if (whitePositiveResult.isEmpty() && !whiteNegativeResult.isValid()) {
     // there is no white interval covering the timestamp
     // return false and a 24-hour interval
-    return std::make_tuple(false, Interval(TimeStamp(ts.date(), boost::posix_time::hours(0)),
-                                           TimeStamp(ts.date(), boost::posix_time::hours(24))));
+    return std::make_tuple(false,
+                           Interval(TimeStamp(ts.date(), boost::posix_time::hours(0)),
+                                    TimeStamp(ts.date(), boost::posix_time::hours(24))));
   }
 
   if (!whitePositiveResult.isEmpty()) {

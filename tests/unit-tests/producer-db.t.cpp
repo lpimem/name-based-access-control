@@ -20,8 +20,8 @@
  */
 
 #include "producer-db.hpp"
-#include "algo/aes.hpp"
 #include "boost-test.hpp"
+#include "algo/aes.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -85,16 +85,10 @@ BOOST_AUTO_TEST_CASE(DatabaseFunctions)
 
   // get content key
   Buffer keyResult = db.getContentKey(point1);
-  BOOST_CHECK_EQUAL_COLLECTIONS(keyResult.begin(),
-                                keyResult.end(),
-                                keyBuf1.begin(),
-                                keyBuf1.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(keyResult.begin(), keyResult.end(), keyBuf1.begin(), keyBuf1.end());
 
   keyResult = db.getContentKey(point3);
-  BOOST_CHECK_EQUAL_COLLECTIONS(keyResult.begin(),
-                                keyResult.end(),
-                                keyBuf2.begin(),
-                                keyBuf2.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(keyResult.begin(), keyResult.end(), keyBuf2.begin(), keyBuf2.end());
 
   // throw exception when there is no such timeslot in database
   BOOST_CHECK_THROW(db.getContentKey(point4), ProducerDB::Error);

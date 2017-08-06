@@ -22,35 +22,29 @@
 
 #include "consumer.hpp"
 #include "boost-test.hpp"
-#include "algo/encryptor.hpp"
 #include "unit-test-time-fixture.hpp"
+#include "algo/encryptor.hpp"
 
 #include <ndn-cxx/security/key-chain.hpp>
 #include <ndn-cxx/util/dummy-client-face.hpp>
 #include <ndn-cxx/util/time-unit-test-clock.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
 
 namespace ndn {
 namespace gep {
 namespace tests {
 
-static const uint8_t DATA_CONTEN[] = {
-  0xcb, 0xe5, 0x6a, 0x80, 0x41, 0x24, 0x58, 0x23,
-  0x84, 0x14, 0x15, 0x61, 0x80, 0xb9, 0x5e, 0xbd,
-  0xce, 0x32, 0xb4, 0xbe, 0xbc, 0x91, 0x31, 0xd6,
-  0x19, 0x00, 0x80, 0x8b, 0xfa, 0x00, 0x05, 0x9c
-};
+static const uint8_t DATA_CONTEN[] = {0xcb, 0xe5, 0x6a, 0x80, 0x41, 0x24, 0x58, 0x23,
+                                      0x84, 0x14, 0x15, 0x61, 0x80, 0xb9, 0x5e, 0xbd,
+                                      0xce, 0x32, 0xb4, 0xbe, 0xbc, 0x91, 0x31, 0xd6,
+                                      0x19, 0x00, 0x80, 0x8b, 0xfa, 0x00, 0x05, 0x9c};
 
-static const uint8_t AES_KEY[] = {
-  0xdd, 0x60, 0x77, 0xec, 0xa9, 0x6b, 0x23, 0x1b,
-  0x40, 0x6b, 0x5a, 0xf8, 0x7d, 0x3d, 0x55, 0x32
-};
+static const uint8_t AES_KEY[] =
+  {0xdd, 0x60, 0x77, 0xec, 0xa9, 0x6b, 0x23, 0x1b, 0x40, 0x6b, 0x5a, 0xf8, 0x7d, 0x3d, 0x55, 0x32};
 
-static const uint8_t IV[] = {
-  0x73, 0x6f, 0x6d, 0x65, 0x72, 0x61, 0x6e, 0x64,
-  0x6f, 0x6d, 0x76, 0x65, 0x63, 0x74, 0x6f, 0x72
-};
+static const uint8_t IV[] =
+  {0x73, 0x6f, 0x6d, 0x65, 0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x76, 0x65, 0x63, 0x74, 0x6f, 0x72};
 
 class ConsumerFixture : public UnitTestTimeFixture
 {
@@ -98,8 +92,13 @@ public:
     shared_ptr<Data> contentData = make_shared<Data>(contentName);
     algo::EncryptParams eparams(tlv::AlgorithmAesCbc);
     eparams.setIV(IV, sizeof(IV));
-    algo::encryptData(*contentData, DATA_CONTEN, sizeof(DATA_CONTEN), cKeyName,
-                      fixtureCKeyBuf.buf(), fixtureCKeyBuf.size(), eparams);
+    algo::encryptData(*contentData,
+                      DATA_CONTEN,
+                      sizeof(DATA_CONTEN),
+                      cKeyName,
+                      fixtureCKeyBuf.buf(),
+                      fixtureCKeyBuf.size(),
+                      eparams);
     keyChain.sign(*contentData);
     return contentData;
   }
@@ -109,8 +108,13 @@ public:
   {
     shared_ptr<Data> cKeyData = make_shared<Data>(cKeyName);
     algo::EncryptParams eparams(tlv::AlgorithmRsaOaep);
-    algo::encryptData(*cKeyData, fixtureCKeyBuf.buf(), fixtureCKeyBuf.size(), dKeyName,
-                      fixtureEKeyBuf.buf(), fixtureEKeyBuf.size(), eparams);
+    algo::encryptData(*cKeyData,
+                      fixtureCKeyBuf.buf(),
+                      fixtureCKeyBuf.size(),
+                      dKeyName,
+                      fixtureEKeyBuf.buf(),
+                      fixtureEKeyBuf.size(),
+                      eparams);
     keyChain.sign(*cKeyData);
     return cKeyData;
   }
@@ -120,8 +124,13 @@ public:
   {
     shared_ptr<Data> dKeyData = make_shared<Data>(dKeyName);
     algo::EncryptParams eparams(tlv::AlgorithmRsaOaep);
-    algo::encryptData(*dKeyData, fixtureDKeyBuf.buf(), fixtureDKeyBuf.size(), uKeyName,
-                      fixtureUEKeyBuf.buf(), fixtureUEKeyBuf.size(), eparams);
+    algo::encryptData(*dKeyData,
+                      fixtureDKeyBuf.buf(),
+                      fixtureDKeyBuf.size(),
+                      uKeyName,
+                      fixtureUEKeyBuf.buf(),
+                      fixtureUEKeyBuf.size(),
+                      eparams);
     keyChain.sign(*dKeyData);
     return dKeyData;
   }
@@ -202,26 +211,24 @@ BOOST_AUTO_TEST_CASE(DecryptContent)
   // decrypt
   consumer.decrypt(cKeyData->getContent().blockFromValue(),
                    fixtureDKeyBuf,
-                   [=](const Buffer& result){
-                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
+                   [=](const Buffer& result) {
+                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(),
+                                                   result.end(),
                                                    aesKeyBuf.begin(),
                                                    aesKeyBuf.end());
                    },
-                   [=](const ErrorCode&, const std::string&){
-                     BOOST_CHECK(false);
-                   });
+                   [=](const ErrorCode&, const std::string&) { BOOST_CHECK(false); });
 
   // decrypt
   consumer.decrypt(contentData->getContent().blockFromValue(),
                    fixtureCKeyBuf,
-                   [=](const Buffer& result){
-                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
+                   [=](const Buffer& result) {
+                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(),
+                                                   result.end(),
                                                    DATA_CONTEN,
                                                    DATA_CONTEN + sizeof(DATA_CONTEN));
                    },
-                   [=](const ErrorCode&, const std::string&){
-                     BOOST_CHECK(false);
-                   });
+                   [=](const ErrorCode&, const std::string&) { BOOST_CHECK(false); });
 }
 
 BOOST_AUTO_TEST_CASE(Consume)
@@ -237,7 +244,7 @@ BOOST_AUTO_TEST_CASE(Consume)
   Name prefix("/Prefix");
   // prepare face1
   face1.setInterestFilter(prefix,
-                          [&] (const InterestFilter&, const Interest& i) {
+                          [&](const InterestFilter&, const Interest& i) {
                             if (i.matchesData(*contentData)) {
                               contentCount = 1;
                               face1.put(*contentData);
@@ -256,7 +263,7 @@ BOOST_AUTO_TEST_CASE(Consume)
                             return;
                           },
                           RegisterPrefixSuccessCallback(),
-                          [] (const Name&, const std::string& e) { });
+                          [](const Name&, const std::string& e) {});
 
   do {
     advanceClocks(time::milliseconds(10), 20);
@@ -270,15 +277,14 @@ BOOST_AUTO_TEST_CASE(Consume)
 
   int finalCount = 0;
   consumer.consume(contentName,
-                   [&](const Data& data, const Buffer& result){
+                   [&](const Data& data, const Buffer& result) {
                      finalCount = 1;
-                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
+                     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(),
+                                                   result.end(),
                                                    DATA_CONTEN,
                                                    DATA_CONTEN + sizeof(DATA_CONTEN));
                    },
-                   [&](const ErrorCode& code, const std::string& str){
-                     BOOST_CHECK(false);
-                   });
+                   [&](const ErrorCode& code, const std::string& str) { BOOST_CHECK(false); });
 
   do {
     advanceClocks(time::milliseconds(10), 20);
@@ -304,7 +310,7 @@ BOOST_AUTO_TEST_CASE(CosumerWithLink)
   Name prefix("/Prefix");
   // prepare face1
   face1.setInterestFilter(prefix,
-                          [&] (const InterestFilter&, const Interest& i) {
+                          [&](const InterestFilter&, const Interest& i) {
                             BOOST_CHECK(i.getLink().getDelegations().size() == 3);
                             if (i.matchesData(*contentData)) {
                               contentCount++;
@@ -324,7 +330,7 @@ BOOST_AUTO_TEST_CASE(CosumerWithLink)
                             return;
                           },
                           RegisterPrefixSuccessCallback(),
-                          [] (const Name&, const std::string& e) { });
+                          [](const Name&, const std::string& e) {});
 
   do {
     advanceClocks(time::milliseconds(10), 20);
@@ -345,13 +351,11 @@ BOOST_AUTO_TEST_CASE(CosumerWithLink)
   consumer.addDecryptionKey(uKeyName, fixtureUDKeyBuf);
 
   consumer.consume(contentName,
-                   [&](const Data& data, const Buffer& result){
+                   [&](const Data& data, const Buffer& result) {
                      BOOST_CHECK(true);
                      resultCount++;
                    },
-                   [](const ErrorCode& code, const std::string& str){
-                     BOOST_CHECK(false);
-                   },
+                   [](const ErrorCode& code, const std::string& str) { BOOST_CHECK(false); },
                    datalink);
 
   do {
@@ -366,6 +370,6 @@ BOOST_AUTO_TEST_CASE(CosumerWithLink)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace test
+} // namespace tests
 } // namespace gep
 } // namespace ndn

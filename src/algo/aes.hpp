@@ -20,10 +20,10 @@
 #ifndef NDN_GEP_ALGO_AES_HPP
 #define NDN_GEP_ALGO_AES_HPP
 
-#include <ndn-cxx/security/key-params.hpp>
-#include "../random-number-generator.hpp"
 #include "encrypt-params.hpp"
 #include "../decrypt-key.hpp"
+#include "../random-number-generator.hpp"
+#include <ndn-cxx/security/key-params.hpp>
 
 
 namespace ndn {
@@ -40,13 +40,17 @@ public:
   deriveEncryptKey(const Buffer& keyBits);
 
   static Buffer
-  decrypt(const uint8_t* key, size_t keyLen,
-          const uint8_t* payload, size_t payloadLen,
+  decrypt(const uint8_t* key,
+          size_t keyLen,
+          const uint8_t* payload,
+          size_t payloadLen,
           const EncryptParams& params);
 
   static Buffer
-  encrypt(const uint8_t* key, size_t keyLen,
-          const uint8_t* payload, size_t payloadLen,
+  encrypt(const uint8_t* key,
+          size_t keyLen,
+          const uint8_t* payload,
+          size_t payloadLen,
           const EncryptParams& params);
 };
 
