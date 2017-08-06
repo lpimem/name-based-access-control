@@ -129,17 +129,29 @@ GroupManager::updateSchedule(const std::string& scheduleName, const Schedule& sc
   m_db.updateSchedule(scheduleName, schedule);
 }
 
+Buffer
+extractPublicKeyBits(const Buffer& key)
+{
+  const size_t offset = 42;
+  std::cout << "[Extract Public Key] Before: " << toHex(key, true) << std::endl;
+  Buffer keyBits(key.buf() + offset, key.size() - offset);
+  std::cout << "[Extract Public Key] After: " << toHex(keyBits, true) << std::endl;
+  return keyBits;
+}
+
 void
 GroupManager::addMember(const std::string& scheduleName, const Data& memCert)
 {
   security::v2::Certificate cert(memCert);
-  m_db.addMember(scheduleName, cert.getKeyName(), cert.getPublicKey());
+  Buffer keybits = extractPublicKeyBits(cert.getPublicKey());
+  m_db.addMember(scheduleName, cert.getKeyName(), keybits);
 }
 
 void
 GroupManager::addMember(const std::string& scheduleName, const Name& keyName, const Buffer& key)
 {
-  m_db.addMember(scheduleName, keyName, key);
+  Buffer keybits = extractPublicKeyBits(key);
+  m_db.addMember(scheduleName, keyName, keybits);
 }
 
 void
