@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(GetGroupKey)
   // second data and decrypt
   dataIterator++;
   BOOST_CHECK_EQUAL(dataIterator->getName().toUri(),
-                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123");
+                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/KEY/ksk-123");
 
   //////////////////////////////////////////////////////////////////////// start decryption
   Block dataContent = dataIterator->getContent();
@@ -364,12 +364,12 @@ BOOST_AUTO_TEST_CASE(GetGroupKey)
   // third data and decrypt
   dataIterator++;
   BOOST_CHECK_EQUAL(dataIterator->getName().toUri(),
-                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberB/ksk-123");
+                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberB/KEY/ksk-123");
 
   // second data and decrypt
   dataIterator++;
   BOOST_CHECK_EQUAL(dataIterator->getName().toUri(),
-                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberC/ksk-123");
+                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberC/KEY/ksk-123");
 
   // invalid time stamp to get group key
   TimeStamp tp2(from_iso_string("20150826T083000"));
@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE(GetGroupKeyWithoutRegeneration)
   // second data
   dataIterator1++;
   BOOST_CHECK_EQUAL(dataIterator1->getName().toUri(),
-                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123");
+                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/KEY/ksk-123");
 
   // add new members to the database
   Block dataBlock = cert.wireEncode();
@@ -430,7 +430,7 @@ BOOST_AUTO_TEST_CASE(GetGroupKeyWithoutRegeneration)
   // second data
   dataIterator2++;
   BOOST_CHECK_EQUAL(dataIterator2->getName().toUri(),
-                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123");
+                    "/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/KEY/ksk-123");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

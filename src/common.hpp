@@ -57,6 +57,12 @@
 #include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/util/signal.hpp>
 
+#include <ndn-cxx/security/v1/identity-certificate.hpp>
+#include <ndn-cxx/security/v2/validation-callback.hpp>
+#include <ndn-cxx/security/v2/validation-error.hpp>
+#include <ndn-cxx/security/v2/validator.hpp>
+#include <ndn-cxx/security/validator-null.hpp>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
@@ -92,6 +98,16 @@ using ndn::Data;
 using ndn::Name;
 using ndn::Exclude;
 using ndn::Block;
+
+using ndn::security::v2::Validator;
+
+// This is now a v2 Validator subclass. (since version 6dfeffe)
+using ndn::security::ValidatorNull;
+using security::v2::DataValidationSuccessCallback;
+using security::v2::DataValidationFailureCallback;
+using security::v2::ValidationError;
+
+using security::v1::IdentityCertificate;
 
 namespace tlv {
 using namespace ndn::tlv;

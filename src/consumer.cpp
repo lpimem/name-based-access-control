@@ -68,10 +68,10 @@ Consumer::consume(const Name& contentName,
   shared_ptr<Interest> interest = make_shared<Interest>(contentName);
 
   // prepare callback functions
-  auto validationCallback = [=](const shared_ptr<const Data>& validData) {
+  auto validationCallback = [=](const Data& validData) {
     // decrypt content
-    decryptContent(*validData,
-                   [=](const Buffer& plainText) { consumptionCallBack(*validData, plainText); },
+    decryptContent(validData,
+                   [=](const Buffer& plainText) { consumptionCallBack(validData, plainText); },
                    errorCallback);
   };
 
@@ -141,9 +141,9 @@ Consumer::decryptContent(const Data& data,
     shared_ptr<Interest> interest = make_shared<Interest>(interestName);
 
     // prepare callback functions
-    auto validationCallback = [=](const shared_ptr<const Data>& validCKeyData) {
+    DataValidationSuccessCallback validationCallback = [=](const Data& validCKeyData) {
       // decrypt content
-      decryptCKey(*validCKeyData,
+      decryptCKey(validCKeyData,
                   [=](const Buffer& cKeyBits) {
                     decrypt(encryptedContent, cKeyBits, plainTextCallBack, errorCallback);
                     this->m_cKeyMap.insert(std::make_pair(cKeyName, cKeyBits));
@@ -180,9 +180,9 @@ Consumer::decryptCKey(const Data& cKeyData,
     shared_ptr<Interest> interest = make_shared<Interest>(interestName);
 
     // prepare callback functions
-    auto validationCallback = [=](const shared_ptr<const Data>& validDKeyData) {
+    DataValidationSuccessCallback validationCallback = [=](const Data& validDKeyData) {
       // decrypt content
-      decryptDKey(*validDKeyData,
+      decryptDKey(validDKeyData,
                   [=](const Buffer& dKeyBits) {
                     decrypt(cKeyContent, dKeyBits, plainTextCallBack, errorCallback);
                     this->m_dKeyMap.insert(std::make_pair(dKeyName, dKeyBits));
@@ -242,18 +242,17 @@ void
 Consumer::sendInterest(const Interest& interest,
                        int nRetrials,
                        const Link& link,
-                       const OnDataValidated& validationCallback,
+                       const DataValidationSuccessCallback& validationCallback,
                        const ErrorCallBack& errorCallback)
 {
   auto dataCallback = [=](const Interest& contentInterest, const Data& contentData) {
     if (!contentInterest.matchesData(contentData))
       return;
-
-    this->m_validator->validate(contentData,
-                                validationCallback,
-                                [=](const shared_ptr<const Data>& d, const std::string& e) {
-                                  errorCallback(ErrorCode::Validation, e);
-                                });
+    DataValidationFailureCallback onValidationFailure = [=](const Data& data,
+                                                            const ValidationError& error) {
+      errorCallback(ErrorCode::Validation, error.getInfo());
+    };
+    this->m_validator->validate(contentData, validationCallback, onValidationFailure);
   };
 
   // set link object if it is available
@@ -278,7 +277,7 @@ void
 Consumer::handleNack(const Interest& interest,
                      const lp::Nack& nack,
                      const Link& link,
-                     const OnDataValidated& callback,
+                     const DataValidationSuccessCallback& callback,
                      const ErrorCallBack& errorCallback)
 {
   // we run out of options, report retrieval failure.
@@ -289,7 +288,7 @@ void
 Consumer::handleTimeout(const Interest& interest,
                         int nRetrials,
                         const Link& link,
-                        const OnDataValidated& callback,
+                        const DataValidationSuccessCallback& callback,
                         const ErrorCallBack& errorCallback)
 {
   if (nRetrials > 0) {

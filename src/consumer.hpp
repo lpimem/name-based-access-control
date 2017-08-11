@@ -23,6 +23,7 @@
 #ifndef NDN_GEP_CONSUMER_HPP
 #define NDN_GEP_CONSUMER_HPP
 
+#include "common.hpp"
 #include "consumer-db.hpp"
 #include "error-code.hpp"
 #include "algo/aes.hpp"
@@ -156,7 +157,7 @@ public:
   sendInterest(const Interest& interest,
                int nRetrials,
                const Link& link,
-               const OnDataValidated& validationCallback,
+               const DataValidationSuccessCallback& validationCallback,
                const ErrorCallBack& errorCallback);
 
   /**
@@ -175,7 +176,7 @@ public:
   handleNack(const Interest& interest,
              const lp::Nack& nack,
              const Link& link,
-             const OnDataValidated& validationCallback,
+             const DataValidationSuccessCallback& validationCallback,
              const ErrorCallBack& errorCallback);
 
   /**
@@ -194,7 +195,7 @@ public:
   handleTimeout(const Interest& interest,
                 int nRetrials,
                 const Link& link,
-                const OnDataValidated& validationCallback,
+                const DataValidationSuccessCallback& validationCallback,
                 const ErrorCallBack& errorCallback);
 
 public:
