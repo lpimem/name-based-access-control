@@ -70,23 +70,12 @@ GroupManager::getGroupKey(const TimeStamp& timeslot, bool needRegenerate)
   eKeyName.append(NAME_COMPONENT_E_KEY).append(startTs).append(endTs);
 
   if (!needRegenerate && m_db.hasEKey(eKeyName)) {
-    std::cout << "[NAC] using existing e-key" << std::endl;
     std::tie(pubKeyBuf, priKeyBuf) = getEKey(eKeyName);
   }
   else {
-    std::cout << "[NAC] generating new e-key/d-key pair" << std::endl;
     generateKeyPairs(priKeyBuf, pubKeyBuf);
     if (m_db.hasEKey(eKeyName)) {
-      try {
-        deleteEKey(eKeyName);
-      }
-      catch (std::exception& e) {
-        std::cerr << "cannot delete ekey [" << eKeyName.toUri() << "] " << e.what() << std::endl;
-      }
-      catch (...) {
-        std::cerr << "cannot delete ekey [" << eKeyName.toUri() << "] "
-                  << "unknown error" << std::endl;
-      }
+      deleteEKey(eKeyName);
     }
     addEKey(eKeyName, pubKeyBuf, priKeyBuf);
   }
@@ -133,9 +122,7 @@ Buffer
 extractPublicKeyBits(const Buffer& key)
 {
   const size_t offset = 42;
-  std::cout << "[Extract Public Key] Before: " << toHex(key, true) << std::endl;
   Buffer keyBits(key.buf() + offset, key.size() - offset);
-  std::cout << "[Extract Public Key] After: " << toHex(keyBits, true) << std::endl;
   return keyBits;
 }
 
@@ -249,7 +236,6 @@ GroupManager::createDKeyData(const std::string& startTs,
   Data data = Data(name);
   data.setFreshnessPeriod(time::hours(m_freshPeriod));
   algo::EncryptParams eparams(tlv::AlgorithmRsaOaep);
-  std::cout << "Encrypting D-KEY using key: " << toHex(certKey.buf(), certKey.size()) << std::endl;
   algo::encryptData(data,
                     priKeyBuf.buf(),
                     priKeyBuf.size(),
@@ -258,8 +244,6 @@ GroupManager::createDKeyData(const std::string& startTs,
                     certKey.size(),
                     eparams);
   m_keyChain.sign(data);
-  std::cout << "Encrypted D-KEY [" << name.toUri() << "] \r\n\t using " << std::endl
-            << toHex(certKey, true) << std::endl;
   return data;
 }
 

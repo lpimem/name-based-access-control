@@ -175,13 +175,11 @@ Producer::sendKeyInterest(const Interest& interest,
   if (m_keyRetrievalLink.getDelegations().size() > 0) {
     request.setLink(m_keyRetrievalLink.wireEncode());
   }
-  std::cout << "[NAC] sending: " << request.toUri() << std::endl;
   m_face
     .expressInterest(request,
                      std::bind(&Producer::handleCoveringKey, this, _1, _2, timeslot, callback, errorCallback),
                      std::bind(&Producer::handleNack, this, _1, _2, timeslot, callback, errorCallback),
                      std::bind(&Producer::handleTimeout, this, _1, timeslot, callback, errorCallback));
-  // std::cout << "[NAC] DEBUG sent: " << request.toUri() << std::endl;
 }
 
 void
@@ -191,48 +189,39 @@ Producer::handleCoveringKey(const Interest& interest,
                             const ProducerEKeyCallback& callback,
                             const ErrorCallBack& errorCallback)
 {
-  try {
-    // std::cout << "[NAC] DEBUG handleCoveringKey: " << interest.toUri() << std::endl;
-    uint64_t timeCount = toUnixTimestamp(timeslot).count();
-    if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
-      // std::cout << "[NAC] ERROR handleCoveringKey key request not found for " << interest.toUri() << std::endl;
-      return;
-    }
-    KeyRequest& keyRequest = m_keyRequests.at(timeCount);
-
-    Name interestName = interest.getName();
-    Name keyName = data.getName();
-
-    // std::cout << "[NAC] DEBUG handleCoveringKey keyName: " << keyName.toUri() << std::endl;
-
-    system_clock::TimePoint begin = time::fromIsoString(keyName.get(START_TS_INDEX).toUri());
-    system_clock::TimePoint end = time::fromIsoString(keyName.get(END_TS_INDEX).toUri());
-
-    if (timeslot >= end) {
-      // if received E-KEY covers some earlier period, try to retrieve an E-KEY covering later one.
-      keyRequest.repeatAttempts[interestName] = 0;
-
-      Exclude timeRange = interest.getSelectors().getExclude();
-      timeRange.excludeBefore(keyName.get(START_TS_INDEX));
-
-      sendKeyInterest(Interest(interestName).setExclude(timeRange).setChildSelector(1),
-                      timeslot,
-                      callback,
-                      errorCallback);
-    }
-    else {
-      // if received E-KEY covers the content key, encrypt the content
-      Buffer encryptionKey(data.getContent().value(), data.getContent().value_size());
-      // if everything is correct, save the E-KEY as the current key
-      if (encryptContentKey(encryptionKey, keyName, timeslot, callback, errorCallback)) {
-        m_ekeyInfo[interestName].beginTimeslot = begin;
-        m_ekeyInfo[interestName].endTimeslot = end;
-        m_ekeyInfo[interestName].keyBits = encryptionKey;
-      }
-    }
+  uint64_t timeCount = toUnixTimestamp(timeslot).count();
+  if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
+    return;
   }
-  catch (...) {
-    std::cout << "[NAC] DEBUG handleCoveringKey: something wrong happened here" << std::endl;
+  KeyRequest& keyRequest = m_keyRequests.at(timeCount);
+
+  Name interestName = interest.getName();
+  Name keyName = data.getName();
+
+  system_clock::TimePoint begin = time::fromIsoString(keyName.get(START_TS_INDEX).toUri());
+  system_clock::TimePoint end = time::fromIsoString(keyName.get(END_TS_INDEX).toUri());
+
+  if (timeslot >= end) {
+    // if received E-KEY covers some earlier period, try to retrieve an E-KEY covering later one.
+    keyRequest.repeatAttempts[interestName] = 0;
+
+    Exclude timeRange = interest.getSelectors().getExclude();
+    timeRange.excludeBefore(keyName.get(START_TS_INDEX));
+
+    sendKeyInterest(Interest(interestName).setExclude(timeRange).setChildSelector(1),
+                    timeslot,
+                    callback,
+                    errorCallback);
+  }
+  else {
+    // if received E-KEY covers the content key, encrypt the content
+    Buffer encryptionKey(data.getContent().value(), data.getContent().value_size());
+    // if everything is correct, save the E-KEY as the current key
+    if (encryptContentKey(encryptionKey, keyName, timeslot, callback, errorCallback)) {
+      m_ekeyInfo[interestName].beginTimeslot = begin;
+      m_ekeyInfo[interestName].endTimeslot = end;
+      m_ekeyInfo[interestName].keyBits = encryptionKey;
+    }
   }
 }
 
@@ -242,10 +231,8 @@ Producer::handleTimeout(const Interest& interest,
                         const ProducerEKeyCallback& callback,
                         const ErrorCallBack& errorCallback)
 {
-  // std::cout << "[NAC] DEBUG handleTimeout: " << interest.toUri() << std::endl;
   uint64_t timeCount = toUnixTimestamp(timeslot).count();
   if (m_keyRequests.find(timeCount) == m_keyRequests.end()) {
-    // std::cout << "[NAC] ERROR handleTimeout key request not found for " << interest.toUri() << std::endl;
     return;
   }
   KeyRequest& keyRequest = m_keyRequests.at(timeCount);
@@ -269,8 +256,6 @@ Producer::handleNack(const Interest& interest,
                      const ProducerEKeyCallback& callback,
                      const ErrorCallBack& errorCallback)
 {
-  // std::cout << "[NAC] DEBUG handleNack: " << interest.toUri() << std::endl;
-  // std::cout<<"[NAC] Got NACK for " << interest.toUri() << std::endl;
   // we run out of options...
   uint64_t timeCount = toUnixTimestamp(timeslot).count();
 
