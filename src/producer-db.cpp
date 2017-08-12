@@ -132,7 +132,7 @@ ProducerDB::addContentKey(const system_clock::TimePoint& timeslot, const Buffer&
   statement.bind(1, fixedTimeslot);
   statement.bind(2, key.buf(), key.size(), SQLITE_TRANSIENT);
   if (statement.step() != SQLITE_DONE) {
-    std::cerr << statement.step() << std::endl;
+    std::cerr << "ProducerDB::addContentKey() error step: " << statement.step() << std::endl;
     BOOST_THROW_EXCEPTION(Error("Cannot add the key to database"));
   }
 }

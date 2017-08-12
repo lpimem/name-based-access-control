@@ -275,10 +275,10 @@ Producer::updateKeyRequest(KeyRequest& keyRequest,
       callback(keyRequest.encryptedKeys);
     }
     catch (const std::exception& ex) {
-      std::cout << "[NAC] ERROR: " << ex.what() << std::endl;
+      std::cerr << "[NAC] ERROR: updateKeyRequest() " << ex.what() << std::endl;
     }
     catch (...) {
-      std::cout << "[NAC] ERROR: something wrong happened in updateKeyRequest->callback()";
+      std::cerr << "[NAC] ERROR: something wrong happened in Producer::updateKeyRequest()->callback()";
     }
     m_keyRequests.erase(timeCount);
   }

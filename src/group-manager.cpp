@@ -57,7 +57,7 @@ GroupManager::getGroupKey(const TimeStamp& timeslot, bool needRegenerate)
   // get time interval
   Interval finalInterval = calculateInterval(timeslot, memberKeys);
   if (finalInterval.isValid() == false) {
-    std::cerr << "[NAC] interval is invalid" << std::endl;
+    std::cerr << "[NAC] getGroupKey(): interval is invalid" << std::endl;
     return result;
   }
 
