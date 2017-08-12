@@ -96,13 +96,6 @@ public:
                    const ProducerEKeyCallback& callback,
                    const ErrorCallBack& errorCallBack = Producer::defaultErrorCallBack);
 
-  /**
-   * @brief similar to createContentKey, but ensures that callback will be called if there is no error.
-   */
-  void
-  encryptContentKey(const time::system_clock::TimePoint& timeslot,
-                    const ProducerEKeyCallback& callback,
-                    const ErrorCallBack& errorCallBack = Producer::defaultErrorCallBack);
 
   /**
    * @brief Produce an data packet encrypted using the content key corresponding @p timeslot
