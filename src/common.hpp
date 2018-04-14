@@ -57,7 +57,6 @@
 #include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/util/signal.hpp>
 
-#include <ndn-cxx/security/v1/identity-certificate.hpp>
 #include <ndn-cxx/security/v2/validation-callback.hpp>
 #include <ndn-cxx/security/v2/validation-error.hpp>
 #include <ndn-cxx/security/v2/validator.hpp>
@@ -107,7 +106,6 @@ using security::v2::DataValidationSuccessCallback;
 using security::v2::DataValidationFailureCallback;
 using security::v2::ValidationError;
 
-using security::v1::IdentityCertificate;
 
 namespace tlv {
 using namespace ndn::tlv;
